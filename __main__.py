@@ -79,11 +79,11 @@ async def serve_client(reader, writer, countinghead_timestamps):
 
     if led_on == 6:
         onboard_led.on()
-        trigger_countingheads(countinghead_timestamps)
         response = response.replace('/*animation*/',
-                                    'animation: moveTrain 5s linear 1 forwards;')
+                                    'animation: moveTrain '+str(countinghead_timestamps[-1][-1])+'s linear 1 forwards;')
         response = response.replace('100% {  /* Anfang */', '0% {  /* Anfang */')
         response = response.replace('0% {  /* Ende */', '100% {  /* Ende */')
+        trigger_countingheads(countinghead_timestamps)
 
     if led_off == 6:
         onboard_led.off()

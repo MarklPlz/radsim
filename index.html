@@ -25,7 +25,7 @@
         .frame {
             position: relative;
             width: 80%;
-            height: 200px;
+            height: 150px;
             background-color: #fff;
             border: 1px solid #ccc;
             overflow: hidden;
@@ -35,7 +35,7 @@
 
         .tracks {
             position: absolute;
-            bottom: 60px;
+            bottom: 40px;
             width: 100%;
             height: 5px;
             background-color: #999;
@@ -43,7 +43,7 @@
 
         .countinghead {
             position: absolute;
-            bottom: 45px;
+            bottom: 20px;
             display: flex;
             align-items: center;
             width: 70px;
@@ -78,8 +78,8 @@
 
         .train {
             position: absolute;
-            top: 50%;
-            left: -630px;
+            bottom: 40px;
+            left: -700px;
             display: flex;
             align-items: center;
             transform: translateY(-50%);
@@ -88,49 +88,49 @@
 
         /* Styling for the carriages */
         .carriage {
-            width: 200px;
-            height: 50px;
+            width: 230px;
+            height: 29px;
             background-color: #f8f4cf;
-            margin-left: 10px;
+            margin-left: 3px;
             border-radius: 5px;
             position: relative;
         }
 
-        /* Adding details to the carriages */
+        /* Carriagewheels*/
         .carriage::before,
         .carriage::after {
             content: '';
             position: absolute;
-            bottom: -10px;
-            width: 180px;
-            height: 10px;
-            border-radius: 5px;
+            bottom: -9px;
+            width: 185px;
+            height: 9px;
+            border-radius: 4px;
             background-color: #000;
         }
 
         .carriage::before {
-            left: 10px;
+            left: 22px;
         }
 
         .carriage::after {
-            right: 10px;
+            right: 23px;
         }
 
         /* Adding a horizontal line to the carriage */
         .carriage::after {
             content: '';
             position: absolute;
-            width: 200px;
-            height: 20px;
-            background-color: #1c40a1; /* Change the color as needed */
-            bottom: 40%;
+            width: 230px;
+            height: 13px;
+            background-color: #1c40a1;
+            bottom: 10px;
             border-radius: 3px;
-            left: 0; /* Position the line at the left edge */
+            left: 0;
         }
 
         @keyframes moveTrain {
             0% {  /* Anfang */
-                left: -630px;
+                left: -700px;
             }
             0% {  /* Ende */
                 left: 100%;
@@ -159,22 +159,22 @@
 <body>
     <div class="frame">
         <div class="tracks"></div>
-        <div class="countinghead" style="left: 12.5%;">
+        <div class="countinghead" style="left: 35px;">
             <div class="circle left"></div>
             <div class="circle right"></div>
             <div class="line"></div>
         </div>
-        <div class="countinghead" style="left: 37.5%;">
+        <div class="countinghead" style="left: 33%;">
             <div class="circle left"></div>
             <div class="circle right"></div>
             <div class="line"></div>
         </div>
-        <div class="countinghead" style="left: 62.5%;">
+        <div class="countinghead" style="left: 66%;">
             <div class="circle left"></div>
             <div class="circle right"></div>
             <div class="line"></div>
         </div>
-        <div class="countinghead" style="left: 87.5%;">
+        <div class="countinghead" style="right: -35px;">
             <div class="circle left"></div>
             <div class="circle right"></div>
             <div class="line"></div>
