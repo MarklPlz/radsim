@@ -37,6 +37,7 @@ input_pin8 = Pin(17, Pin.IN)
 input_pin9 = Pin(18, Pin.IN)
 input_pin10 = Pin(19, Pin.IN)
 
+
 def setup_access_point():
     # Create Access Point
     rp2.country('AT')
@@ -56,13 +57,15 @@ def setup_access_point():
     print('Access Point Active')
     print('SSID:', ap.config('essid'))
     print('IP Address:', ap.ifconfig()[0])
-    
+ 
+ 
 def get_html():
     url = "./index.html"
     page = open(url, "r")
     html = page.read()
     page.close()
     return html
+
 
 async def serve_client(reader, writer, countinghead_timestamps):
     response = get_html()
@@ -80,16 +83,22 @@ async def serve_client(reader, writer, countinghead_timestamps):
     if led_on == 6:
         onboard_led.on()
         response = response.replace('/*animation*/',
-                                    'animation: moveTrain '+str(countinghead_timestamps[-1][-1])+'s linear 1 forwards;')
-        response = response.replace('100% {  /* Anfang */', '0% {  /* Anfang */')
+                                    'animation: moveTrain '
+                                    +str(countinghead_timestamps[-1][-1])
+                                    +'s linear 1 forwards;')
+        response = response.replace('100% {  /* Anfang */', 
+                                    '0% {  /* Anfang */')
         response = response.replace('0% {  /* Ende */', '100% {  /* Ende */')
         trigger_countingheads(countinghead_timestamps)
 
     if led_off == 6:
         onboard_led.off()
         response = response.replace('/*animation*/',
-                                    'animation: moveTrain 5s linear 1 forwards;')
-        response = response.replace('0% {  /* Anfang */', '100% {  /* Anfang */')
+                                    'animation: moveTrain '
+                                    +str(countinghead_timestamps[-1][-1])
+                                    +'s linear 1 forwards;')
+        response = response.replace('0% {  /* Anfang */', 
+                                    '100% {  /* Anfang */')
         response = response.replace('100% {  /* Ende */', '0% {  /* Ende */')
 
     writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
@@ -97,6 +106,7 @@ async def serve_client(reader, writer, countinghead_timestamps):
 
     await writer.drain()
     await writer.wait_closed()
+
 
 def load_train():
     with open("train.json", "r") as file:
@@ -106,34 +116,39 @@ def load_train():
             print(exception)
     return train
 
+
 def get_wheel_timestamps():
     train = load_train()
     no_wheels = train["no_bogie_wheels"] * 2 * train["no_carriages"]
-    carriage_spacing = (train["train_length"]-train["no_carriages"]*train["trunnion_spacing"])/train["no_carriages"]
+    carriage_spacing = (train["train_length"]-train["no_carriages"]
+                        *train["trunnion_spacing"])/train["no_carriages"]
+    speed = (train["speed"]/3.6)
     
     # schleife einfügen statt hardcoden
-    wheel_timestamps = [0] * 12
-    wheel_timestamps[0] = carriage_spacing/2/1000/(train["speed"]/3.6)
-    wheel_timestamps[1] = wheel_timestamps[0]+train["bogie_axle_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[2] = wheel_timestamps[0]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[3] = wheel_timestamps[1]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[4] = wheel_timestamps[3]+carriage_spacing/1000/(train["speed"]/3.6)
-    wheel_timestamps[5] = wheel_timestamps[4]+train["bogie_axle_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[6] = wheel_timestamps[4]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[7] = wheel_timestamps[5]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[8] = wheel_timestamps[7]+carriage_spacing/1000/(train["speed"]/3.6)
-    wheel_timestamps[9] = wheel_timestamps[8]+train["bogie_axle_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[10] = wheel_timestamps[8]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-    wheel_timestamps[11] = wheel_timestamps[9]+train["trunnion_spacing"]/1000/(train["speed"]/3.6)
-
+    wheel_timestamps = [0] * no_wheels
+    wheel_timestamps[0] = carriage_spacing/2/speed
+    wheel_timestamps[1] = wheel_timestamps[0]+train["bogie_axle_spacing"]/speed
+    wheel_timestamps[2] = wheel_timestamps[0]+train["trunnion_spacing"]/speed
+    wheel_timestamps[3] = wheel_timestamps[1]+train["trunnion_spacing"]/speed
+    wheel_timestamps[4] = wheel_timestamps[3]+carriage_spacing/speed
+    wheel_timestamps[5] = wheel_timestamps[4]+train["bogie_axle_spacing"]/speed
+    wheel_timestamps[6] = wheel_timestamps[4]+train["trunnion_spacing"]/speed
+    wheel_timestamps[7] = wheel_timestamps[5]+train["trunnion_spacing"]/speed
+    wheel_timestamps[8] = wheel_timestamps[7]+carriage_spacing/speed
+    wheel_timestamps[9] = wheel_timestamps[8]+train["bogie_axle_spacing"]/speed
+    wheel_timestamps[10] = wheel_timestamps[8]+train["trunnion_spacing"]/speed
+    wheel_timestamps[11] = wheel_timestamps[9]+train["trunnion_spacing"]/speed
     return wheel_timestamps
 
+
 def get_countinghead_timestamps(wheel_timestamps):
-    countinghead_timestamps = [[0] * 12 for _ in range(4)]
+    countinghead_timestamps = [[0] * len(wheel_timestamps) for _ in range(4)]
     for i in range(len(countinghead_timestamps)):
         for j in range(len(countinghead_timestamps[0])):
-            countinghead_timestamps[i][j] = wheel_timestamps[j]+(wheel_timestamps[-1]+1)*i
+            countinghead_timestamps[i][j] = wheel_timestamps[j]+i*(
+                                                wheel_timestamps[-1]+1)
     return countinghead_timestamps
+
 
 def trigger_countingheads(countinghead_timestamps):
     start_time = time.time()
@@ -142,54 +157,56 @@ def trigger_countingheads(countinghead_timestamps):
             if time.time() >= start_time+countinghead_timestamps[i][j]:
                 set_countingheadpin(i)
 
+
 def set_countingheadpin(countinghead):
     train = load_train()
+    time_sys = SYS_DISTANCE/(train["speed"]/3.6)
     if countinghead == 0:
         zp1_sys1.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp1_sys2.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp1_sys1.value(0)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp1_sys2.value(0)
     elif countinghead == 1:
         zp2_sys1.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp2_sys2.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp2_sys1.value(0)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp2_sys2.value(0)
     elif countinghead == 2:
         zp3_sys1.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp3_sys2.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp3_sys1.value(0)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp3_sys2.value(0)
     elif countinghead == 3:
         zp4_sys1.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp4_sys2.value(1)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp4_sys1.value(0)
-        time.sleep(SYS_DISTANCE/(train["speed"]/3.6))
+        time.sleep(time_sys)
         zp4_sys2.value(0)
     else:
         print('Error setting pin')
         print(countinghead)
-
-
-
-
+        
+        
+        
 async def main():
     wheel_timestamps = get_wheel_timestamps()
     countinghead_timestamps = get_countinghead_timestamps(wheel_timestamps)
     print('Setting up Access Point...')
     setup_access_point()
     print('Setting up webserver...')
-    wrapper_func = lambda reader, writer: serve_client(reader, writer, countinghead_timestamps)
+    wrapper_func = lambda reader, writer: serve_client(reader, writer, 
+                                                       countinghead_timestamps)
     asyncio.create_task(asyncio.start_server(wrapper_func, "0.0.0.0", 80))
     while True:
         print("heartbeat")
