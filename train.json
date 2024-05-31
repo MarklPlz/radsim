@@ -1,0 +1,8 @@
+{
+    "no_bogie_wheels": 2,
+    "bogie_axle_spacing": 2500,
+    "trunnion_spacing": 16000,
+    "no_carriages": 3,
+    "train_length": 70000,
+    "speed": 80
+}
