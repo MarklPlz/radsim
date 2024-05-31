@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radsim</title>
+    <style>
+        body {
+            color: #f9f9f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .buttoncontainer {
+            text-align: center;
+        }
+        
+        
+        .frame {
+            position: relative;
+            width: 80%;
+            height: 200px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tracks {
+            position: absolute;
+            bottom: 60px;
+            width: 100%;
+            height: 5px;
+            background-color: #999;
+        }
+
+        .countinghead {
+            position: absolute;
+            bottom: 45px;
+            display: flex;
+            align-items: center;
+            width: 70px;
+            transform: translate(-50%, -50%);
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            background-color: #000;
+            border-radius: 50%;
+            margin: 12px 12px;
+            position: absolute;
+        }
+
+        .circle.left {
+            left: 0;
+        }
+
+        .circle.right {
+            right: 0;
+        }
+
+        .line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #000;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .train {
+            position: absolute;
+            top: 50%;
+            left: -630px;
+            display: flex;
+            align-items: center;
+            transform: translateY(-50%);
+            /*animation*/
+        }
+
+        /* Styling for the carriages */
+        .carriage {
+            width: 200px;
+            height: 50px;
+            background-color: #f8f4cf;
+            margin-left: 10px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        /* Adding details to the carriages */
+        .carriage::before,
+        .carriage::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            width: 180px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: #000;
+        }
+
+        .carriage::before {
+            left: 10px;
+        }
+
+        .carriage::after {
+            right: 10px;
+        }
+
+        /* Adding a horizontal line to the carriage */
+        .carriage::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 20px;
+            background-color: #1c40a1; /* Change the color as needed */
+            bottom: 40%;
+            border-radius: 3px;
+            left: 0; /* Position the line at the left edge */
+        }
+
+        @keyframes moveTrain {
+            0% {  /* Anfang */
+                left: -630px;
+            }
+            0% {  /* Ende */
+                left: 100%;
+            }
+        }
+
+        button, .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover, .button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="frame">
+        <div class="tracks"></div>
+        <div class="countinghead" style="left: 12.5%;">
+            <div class="circle left"></div>
+            <div class="circle right"></div>
+            <div class="line"></div>
+        </div>
+        <div class="countinghead" style="left: 37.5%;">
+            <div class="circle left"></div>
+            <div class="circle right"></div>
+            <div class="line"></div>
+        </div>
+        <div class="countinghead" style="left: 62.5%;">
+            <div class="circle left"></div>
+            <div class="circle right"></div>
+            <div class="line"></div>
+        </div>
+        <div class="countinghead" style="left: 87.5%;">
+            <div class="circle left"></div>
+            <div class="circle right"></div>
+            <div class="line"></div>
+        </div>
+        <div class="train">
+            <div class="carriage"></div>
+            <div class="carriage"></div>
+            <div class="carriage"></div>
+        </div>
+    </div>
+    <div class="buttoncontainer">
+        <a href="/light/on" class="button">Überfahrt Rechts</a>
+    </div>
+    <div class="buttoncontainer">
+        <a href="/light/off" class="button">Überfahrt Links</a>
+    </div>
+</body>
+</html>
+
+
