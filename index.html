@@ -78,7 +78,7 @@
 
         .train {
             position: absolute;
-            bottom: 40px;
+            bottom: 34px;
             left: -700px;
             display: flex;
             align-items: center;
@@ -88,44 +88,46 @@
 
         /* Styling for the carriages */
         .carriage {
-            width: 230px;
-            height: 29px;
+            width: 226px;
+            height: 35px;
             background-color: #f8f4cf;
-            margin-left: 3px;
+            margin-left: 2px;
+            margin-right: 2px;
             border-radius: 5px;
+            border: 2px solid #1c40a1;
             position: relative;
         }
 
-        /* Carriagewheels*/
+        /* Carriage Wheels*/
         .carriage::before,
         .carriage::after {
             content: '';
             position: absolute;
-            bottom: -9px;
+            bottom: -10px;
             width: 185px;
-            height: 9px;
+            height: 8px;
             border-radius: 4px;
             background-color: #000;
         }
 
         .carriage::before {
-            left: 22px;
+            left: 20px;
         }
 
         .carriage::after {
-            right: 23px;
+            right: 21px;
         }
 
         /* Adding a horizontal line to the carriage */
         .carriage::after {
             content: '';
             position: absolute;
-            width: 230px;
-            height: 13px;
+            width: 222px;
+            height: 15px;
             background-color: #1c40a1;
-            bottom: 10px;
+            bottom: 14px;
             border-radius: 3px;
-            left: 0;
+            left: 2px;
         }
 
         @keyframes moveTrain {
