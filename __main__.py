@@ -54,9 +54,10 @@ def setup_access_point():
     ap.ifconfig((IP,SUBNET,GATEWAY,DNS))
 
     # Print AP Config
-    print('Access Point Active')
+    print('Access point active')
     print('SSID:', ap.config('essid'))
-    print('IP Address:', ap.ifconfig()[0])
+    print('IP address:', ap.ifconfig()[0])
+    return ap
  
  
 def get_html():
@@ -81,7 +82,6 @@ async def serve_client(reader, writer, countinghead_timestamps):
     led_off = request.find('/light/off')
 
     if led_on == 6:
-        onboard_led.on()
         response = response.replace('/*animation*/',
                                     'animation: moveTrain '
                                     +str(countinghead_timestamps[-1][-1])
@@ -92,7 +92,6 @@ async def serve_client(reader, writer, countinghead_timestamps):
         trigger_countingheads(countinghead_timestamps)
 
     if led_off == 6:
-        onboard_led.off()
         response = response.replace('/*animation*/',
                                     'animation: moveTrain '
                                     +str(countinghead_timestamps[-1][-1])
@@ -202,15 +201,18 @@ def set_countingheadpin(countinghead):
 async def main():
     wheel_timestamps = get_wheel_timestamps()
     countinghead_timestamps = get_countinghead_timestamps(wheel_timestamps)
-    print('Setting up Access Point...')
-    setup_access_point()
-    print('Setting up webserver...')
+    ap = setup_access_point()
     wrapper_func = lambda reader, writer: serve_client(reader, writer, 
                                                        countinghead_timestamps)
     asyncio.create_task(asyncio.start_server(wrapper_func, "0.0.0.0", 80))
+    print('\nWebserver active')
+    print('http://', ap.ifconfig()[0], sep='')
     while True:
-        print("heartbeat")
-        await asyncio.sleep(5)
+        onboard_led.on()
+        await asyncio.sleep(2)
+        onboard_led.off()
+        await asyncio.sleep(2)
+
         
 try:
     asyncio.run(main())
