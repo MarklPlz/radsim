@@ -209,11 +209,13 @@ async def main():
     print('http://', ap.ifconfig()[0], sep='')
     while True:
         onboard_led.on()
+        life_signal.value(1)
         await asyncio.sleep(2)
         onboard_led.off()
-        await asyncio.sleep(2)
+        life_signal.value(0)
+        await asyncio.sleep(4)
 
-        
+
 try:
     asyncio.run(main())
 finally:
