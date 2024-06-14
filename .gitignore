@@ -180,4 +180,4 @@ cython_debug/
 .micropico
 
 # Wifi Config
-wifi_config.py
+/src/wifi_config.py
