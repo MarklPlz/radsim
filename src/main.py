@@ -64,7 +64,7 @@ def get_html():
     css = page.read()
     page.close()
 
-    html.replace('<link rel="stylesheet" type="text/css" href="css/style.css">', css)
+    html = html.replace('<link rel="stylesheet" type="text/css" href="css/style.css">', '<style>'+css+'</style>')
     return html
 
 
@@ -86,9 +86,8 @@ async def serve_client(reader, writer, countinghead_timestamps):
                                     'animation: moveTrain '
                                     +str(countinghead_timestamps[-1][-1])
                                     +'s linear 1 forwards;')
-        response = response.replace('100% {  /* Anfang */', 
-                                    '0% {  /* Anfang */')
-        response = response.replace('0% {  /* Ende */', '100% {  /* Ende */')
+        response = response.replace('/* Ende */\n    0%', 
+                                    '/* Ende */\n    100%')
         trigger_countingheads(countinghead_timestamps)
 
     if led_off == 6:
@@ -96,9 +95,9 @@ async def serve_client(reader, writer, countinghead_timestamps):
                                     'animation: moveTrain '
                                     +str(countinghead_timestamps[-1][-1])
                                     +'s linear 1 forwards;')
-        response = response.replace('0% {  /* Anfang */', 
-                                    '100% {  /* Anfang */')
-        response = response.replace('100% {  /* Ende */', '0% {  /* Ende */')
+        response = response.replace('/* Anfang */\n    0%',
+                                    '/* Anfang */\n    100%')
+        trigger_countingheads(countinghead_timestamps)
 
     writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
     writer.write(response)

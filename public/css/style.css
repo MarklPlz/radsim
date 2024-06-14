@@ -155,13 +155,15 @@ body {
 }
 
 @keyframes moveTrain {
+
+    /* Anfang */
     0% {
-        /* Anfang */
         left: -700px;
     }
 
+    /* Ende */
     0% {
-        /* Ende */
+
         left: 100%;
     }
 }
