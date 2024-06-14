@@ -1,0 +1,186 @@
+body {
+    color: #f9f9f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    line-height: 1;
+}
+
+.buttoncontainer {
+    text-align: center;
+}
+
+.frame {
+    position: relative;
+    width: 80%;
+    height: 150px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    overflow: hidden;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.tracks {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    height: 5px;
+    background-color: #999;
+}
+
+.countinghead1 {
+    position: absolute;
+    bottom: 20px;
+    left: 35px;
+    display: flex;
+    align-items: center;
+    width: 70px;
+    transform: translate(-50%, -50%);
+}
+
+.countinghead2 {
+    position: absolute;
+    bottom: 20px;
+    left: 33%;
+    display: flex;
+    align-items: center;
+    width: 70px;
+    transform: translate(-50%, -50%);
+}
+
+.countinghead3 {
+    position: absolute;
+    bottom: 20px;
+    left: 66%;
+    display: flex;
+    align-items: center;
+    width: 70px;
+    transform: translate(-50%, -50%);
+}
+
+.countinghead4 {
+    position: absolute;
+    bottom: 20px;
+    right: -35px;
+    display: flex;
+    align-items: center;
+    width: 70px;
+    transform: translate(-50%, -50%);
+}
+
+.circle {
+    width: 20px;
+    height: 20px;
+    background-color: #000;
+    border-radius: 50%;
+    margin: 12px 12px;
+    position: absolute;
+}
+
+.circle.left {
+    left: 0;
+}
+
+.circle.right {
+    right: 0;
+}
+
+.line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: #000;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.train {
+    position: absolute;
+    bottom: 34px;
+    left: -700px;
+    display: flex;
+    align-items: center;
+    transform: translateY(-50%);
+    /*animation*/
+}
+
+/* Styling for the carriages */
+.carriage {
+    width: 226px;
+    height: 35px;
+    background-color: #f8f4cf;
+    margin-left: 2px;
+    margin-right: 2px;
+    border-radius: 5px;
+    border: 2px solid #1c40a1;
+    position: relative;
+}
+
+/* Carriage Wheels*/
+.carriage::before,
+.carriage::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    width: 185px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #000;
+}
+
+.carriage::before {
+    left: 20px;
+}
+
+.carriage::after {
+    right: 21px;
+}
+
+/* Adding a horizontal line to the carriage */
+.carriage::after {
+    content: '';
+    position: absolute;
+    width: 222px;
+    height: 15px;
+    background-color: #1c40a1;
+    bottom: 14px;
+    border-radius: 3px;
+    left: 2px;
+}
+
+@keyframes moveTrain {
+    0% {
+        /* Anfang */
+        left: -700px;
+    }
+
+    0% {
+        /* Ende */
+        left: 100%;
+    }
+}
+
+button,
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover,
+.button:hover {
+    background-color: #0056b3;
+}

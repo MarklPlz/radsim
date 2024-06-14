@@ -6,13 +6,7 @@ import time
 from machine import Pin
 import uasyncio as asyncio
 import ujson
-
-ssid = 'RadsimWIFI'
-pw = 'picorsr123'
-IP =      '192.168.4.1'
-SUBNET =  '255.255.255.0'
-GATEWAY = '192.168.4.1'
-DNS =     '0.0.0.0'
+import src.wifi_config as wc
 
 SYS_DISTANCE = 0.131
 
@@ -46,12 +40,12 @@ def setup_access_point():
     ap.active(False)
     time.sleep(0.1)
 
-    ap.config(essid=ssid, password=pw, security=4, channel=6)
+    ap.config(essid=wc.SSID, password=wc.KEY, security=4, channel=6)
 
     ap.active(True)
     time.sleep(0.1)
 
-    ap.ifconfig((IP,SUBNET,GATEWAY,DNS))
+    ap.ifconfig((wc.IP,wc.SUBNET,wc.GATEWAY,wc.DNS))
 
     # Print AP Config
     print('Access point active')
@@ -61,16 +55,22 @@ def setup_access_point():
  
  
 def get_html():
-    url = "./index.html"
-    page = open(url, "r")
+    html_url = "../public/index.html"
+    css_url = "../public/css/style.css"
+    page = open(html_url, "r")
     html = page.read()
     page.close()
+    page = open(css_url, "r")
+    css = page.read()
+    page.close()
+
+    html.replace('<link rel="stylesheet" type="text/css" href="css/style.css">', css)
     return html
 
 
 async def serve_client(reader, writer, countinghead_timestamps):
     response = get_html()
-    response = response.replace('IP', IP)
+    response = response.replace('IP', wc.IP)
     
     request_line = await reader.readline()
     # We are not interested in HTTP request headers, skip them
@@ -108,7 +108,7 @@ async def serve_client(reader, writer, countinghead_timestamps):
 
 
 def load_train():
-    with open("train.json", "r") as file:
+    with open("../config/train.json", "r") as file:
         try:
             train = ujson.load(file)
         except ValueError as exception:
