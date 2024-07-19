@@ -2,11 +2,14 @@
 import rp2
 import network
 import socket
-import time
+import utime
 from machine import Pin
 import uasyncio as asyncio
 import ujson
 import src.wifi_config as wc
+
+# life signal
+# Strecke anpassen länge
 
 SYS_DISTANCE = 0.131
 
@@ -38,12 +41,12 @@ def setup_access_point():
     ap = network.WLAN(network.AP_IF)
 
     ap.active(False)
-    time.sleep(0.1)
+    utime.sleep_ms(100)
 
     ap.config(essid=wc.SSID, password=wc.KEY, security=4, channel=6)
 
     ap.active(True)
-    time.sleep(0.1)
+    utime.sleep_ms(100)
 
     ap.ifconfig((wc.IP,wc.SUBNET,wc.GATEWAY,wc.DNS))
 
@@ -88,7 +91,6 @@ async def serve_client(reader, writer, countinghead_timestamps):
                                     +'s linear 1 forwards;')
         response = response.replace('/* Ende */\n    0%', 
                                     '/* Ende */\n    100%')
-        trigger_countingheads(countinghead_timestamps)
 
     if led_off == 6:
         response = response.replace('/*animation*/',
@@ -97,10 +99,11 @@ async def serve_client(reader, writer, countinghead_timestamps):
                                     +'s linear 1 forwards;')
         response = response.replace('/* Anfang */\n    0%',
                                     '/* Anfang */\n    100%')
-        trigger_countingheads(countinghead_timestamps)
 
     writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
     writer.write(response)
+    if led_on == 6:
+        trigger_countingheads(countinghead_timestamps)
 
     await writer.drain()
     await writer.wait_closed()
@@ -143,53 +146,56 @@ def get_countinghead_timestamps(wheel_timestamps):
     countinghead_timestamps = [[0] * len(wheel_timestamps) for _ in range(4)]
     for i in range(len(countinghead_timestamps)):
         for j in range(len(countinghead_timestamps[0])):
+            # was wird hier gerechnet?
             countinghead_timestamps[i][j] = wheel_timestamps[j]+i*(
                                                 wheel_timestamps[-1]+1)
     return countinghead_timestamps
 
 
 def trigger_countingheads(countinghead_timestamps):
-    start_time = time.time()
+    start_time = utime.ticks_ms()
     for i in range(len(countinghead_timestamps)):
         for j in range(len(countinghead_timestamps[0])):
-            if time.time() >= start_time+countinghead_timestamps[i][j]:
-                set_countingheadpin(i)
+            # Overflow check missing
+            while(utime.ticks_ms() <= start_time+countinghead_timestamps[i][j]*1000):
+                utime.sleep_ms(1)
+            set_countingheadpin(i)
 
 
 def set_countingheadpin(countinghead):
     train = load_train()
-    time_sys = SYS_DISTANCE/(train["speed"]/3.6)
+    time_sys = round(SYS_DISTANCE/(train["speed"]/3.6)*1000)
     if countinghead == 0:
         zp1_sys1.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp1_sys2.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp1_sys1.value(0)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp1_sys2.value(0)
     elif countinghead == 1:
         zp2_sys1.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp2_sys2.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp2_sys1.value(0)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp2_sys2.value(0)
     elif countinghead == 2:
         zp3_sys1.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp3_sys2.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp3_sys1.value(0)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp3_sys2.value(0)
     elif countinghead == 3:
         zp4_sys1.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp4_sys2.value(1)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp4_sys1.value(0)
-        time.sleep(time_sys)
+        utime.sleep_ms(time_sys)
         zp4_sys2.value(0)
     else:
         print('Error setting pin')
