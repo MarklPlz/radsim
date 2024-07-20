@@ -13,14 +13,12 @@ import src.wifi_config as wc
 
 SYS_DISTANCE = 0.131
 
-zp1_sys1 = Pin(0, Pin.OUT)
-zp1_sys2 = Pin(1, Pin.OUT)
-zp2_sys1 = Pin(2, Pin.OUT)
-zp2_sys2 = Pin(3, Pin.OUT)
-zp3_sys1 = Pin(4, Pin.OUT)
-zp3_sys2 = Pin(5, Pin.OUT)
-zp4_sys1 = Pin(6, Pin.OUT)
-zp4_sys2 = Pin(7, Pin.OUT)
+countingheads = [
+    [Pin(0, Pin.OUT), Pin(1, Pin.OUT)], # CH1 SYS1, SYS2
+    [Pin(2, Pin.OUT), Pin(3, Pin.OUT)], # CH2 SYS1, SYS2
+    [Pin(4, Pin.OUT), Pin(5, Pin.OUT)], # CH3 SYS1, SYS2
+    [Pin(6, Pin.OUT), Pin(7, Pin.OUT)]  # CH4 SYS1, SYS2
+]
 life_signal = Pin(8, Pin.OUT)
 onboard_led = Pin("LED", Pin.OUT, value=0)
 input_pin1 = Pin(10, Pin.IN)
@@ -81,18 +79,8 @@ async def serve_client(reader, writer, countinghead_timestamps):
         pass
 
     request = str(request_line)
-    led_on = request.find('/light/on')
-    led_off = request.find('/light/off')
 
-    if led_on == 6:
-        response = response.replace('/*animation*/',
-                                    'animation: moveTrain '
-                                    +str(countinghead_timestamps[-1][-1])
-                                    +'s linear 1 forwards;')
-        response = response.replace('/* Ende */\n    0%', 
-                                    '/* Ende */\n    100%')
-
-    if led_off == 6:
+    if request.find('/train/l') > 0:
         response = response.replace('/*animation*/',
                                     'animation: moveTrain '
                                     +str(countinghead_timestamps[-1][-1])
@@ -100,13 +88,41 @@ async def serve_client(reader, writer, countinghead_timestamps):
         response = response.replace('/* Anfang */\n    0%',
                                     '/* Anfang */\n    100%')
 
+    if request.find('/train/r') > 0:
+        response = response.replace('/*animation*/',
+                                    'animation: moveTrain '
+                                    +str(countinghead_timestamps[-1][-1])
+                                    +'s linear 1 forwards;')
+        response = response.replace('/* Ende */\n    0%', 
+                                    '/* Ende */\n    100%')
+
     writer.write('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
     writer.write(response)
-    if led_on == 6:
-        trigger_countingheads(countinghead_timestamps)
-
+    
     await writer.drain()
     await writer.wait_closed()
+
+    if request.find('/train/l') > 0:
+        trigger_countingheads(countinghead_timestamps, "l")
+    if request.find('/train/r') > 0:
+        trigger_countingheads(countinghead_timestamps, "r")
+        
+    if request.find('/ch1/l') > 0:
+        set_countingheadpin(0, "l")
+    if request.find('/ch1/r') > 0:
+        set_countingheadpin(0, "r")
+    if request.find('/ch2/l') > 0:
+        set_countingheadpin(1, "l")
+    if request.find('/ch2/r') > 0:
+        set_countingheadpin(1, "r")
+    if request.find('/ch3/l') > 0:
+        set_countingheadpin(2, "l")
+    if request.find('/ch3/r') > 0:
+        set_countingheadpin(2, "r")
+    if request.find('/ch4/l') > 0:
+        set_countingheadpin(3, "l")
+    if request.find('/ch4/r') > 0:
+        set_countingheadpin(3, "r")
 
 
 def load_train():
@@ -152,55 +168,35 @@ def get_countinghead_timestamps(wheel_timestamps):
     return countinghead_timestamps
 
 
-def trigger_countingheads(countinghead_timestamps):
+def trigger_countingheads(countinghead_timestamps, direction):
     start_time = utime.ticks_ms()
     for i in range(len(countinghead_timestamps)):
         for j in range(len(countinghead_timestamps[0])):
             # Overflow check missing
             while(utime.ticks_ms() <= start_time+countinghead_timestamps[i][j]*1000):
                 utime.sleep_ms(1)
-            set_countingheadpin(i)
+            set_countingheadpin(i, direction)
 
 
-def set_countingheadpin(countinghead):
+def set_countingheadpin(countinghead_no, direction):
     train = load_train()
     time_sys = round(SYS_DISTANCE/(train["speed"]/3.6)*1000)
-    if countinghead == 0:
-        zp1_sys1.value(1)
+    if direction == "l":
+        countingheads[countinghead_no][1].value(1)
         utime.sleep_ms(time_sys)
-        zp1_sys2.value(1)
+        countingheads[countinghead_no][0].value(1)
         utime.sleep_ms(time_sys)
-        zp1_sys1.value(0)
+        countingheads[countinghead_no][1].value(0)
         utime.sleep_ms(time_sys)
-        zp1_sys2.value(0)
-    elif countinghead == 1:
-        zp2_sys1.value(1)
+        countingheads[countinghead_no][0].value(0)
+    elif direction == "r":
+        countingheads[countinghead_no][0].value(1)
         utime.sleep_ms(time_sys)
-        zp2_sys2.value(1)
+        countingheads[countinghead_no][1].value(1)
         utime.sleep_ms(time_sys)
-        zp2_sys1.value(0)
+        countingheads[countinghead_no][0].value(0)
         utime.sleep_ms(time_sys)
-        zp2_sys2.value(0)
-    elif countinghead == 2:
-        zp3_sys1.value(1)
-        utime.sleep_ms(time_sys)
-        zp3_sys2.value(1)
-        utime.sleep_ms(time_sys)
-        zp3_sys1.value(0)
-        utime.sleep_ms(time_sys)
-        zp3_sys2.value(0)
-    elif countinghead == 3:
-        zp4_sys1.value(1)
-        utime.sleep_ms(time_sys)
-        zp4_sys2.value(1)
-        utime.sleep_ms(time_sys)
-        zp4_sys1.value(0)
-        utime.sleep_ms(time_sys)
-        zp4_sys2.value(0)
-    else:
-        print('Error setting pin')
-        print(countinghead)
-        
+        countingheads[countinghead_no][1].value(0)
         
         
 async def main():
